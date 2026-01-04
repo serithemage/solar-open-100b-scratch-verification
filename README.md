@@ -262,6 +262,7 @@ solar-open-100b-scratch-verification/
 ### 독립 검증 및 논문
 - [LayerNorm 유사도 독립 검증 (hyunwoongko)](https://github.com/hyunwoongko/solar-vs-glm-vs-phi)
 - [HyperCLOVA X Technical Report (arXiv)](https://arxiv.org/html/2404.01954v1)
+- [Upstage Solar-Open-100B 훈련 로그 공개 (YouTube Live)](https://www.youtube.com/live/2YY9aAUSo_w)
 
 ### 검증 방법론
 - [Model Integrity Verification](https://www.nightfall.ai/ai-security-101/model-integrity-verification)
