@@ -905,15 +905,19 @@ HyperCLOVAX-SEED-Think-32B는 **VLM(Vision-Language Model)**으로 세 가지 �
 
 config.json에 `"model_type": "qwen2_5_vl"` 명시. Vision 부분은 from scratch가 아닙니다.
 
-**2. Tokenizer - Llama 3와 vocab_size 일치**
+**2. Tokenizer - vocab_size 크로스 체크 결과 (2026-01-05 추가 검증)**
 
-| 모델 | vocab_size |
-|------|-----------|
-| HyperCLOVAX-SEED | 128,256 |
-| Llama 3 | 128,256 |
-| HyperCLOVA X (논문) | 100,000 |
+| 모델 | vocab_size | 비고 |
+|------|-----------|------|
+| HyperCLOVAX-SEED | 128,256 | config.json 확인 |
+| Llama 3/3.1 | 128,000 | **256 토큰 차이** |
+| Trillion-7B | 128,256 | 동일 vocab 설계 |
+| HyperCLOVA X (논문) | 100,000 | "SEED" 버전과 28,256 차이 |
 
-"SEED" 버전은 원래 HyperCLOVA X(100k vocab)와 다른 tokenizer를 사용합니다.
+**핵심 발견:**
+- Llama 3 (128,000)와 HyperCLOVAX-SEED (128,256)는 **정확히 일치하지 않음** (256 차이)
+- Trillion-7B 논문에 따르면 128,256 vocab 구성: ~100k 영어 + ~24.5k 한국어
+- 단순 "Llama 3 tokenizer 재사용"이 아닌, **한국어 최적화를 위한 독자 설계**로 보임
 
 **3. Text Decoder Architecture - 고유 요소 존재**
 
@@ -932,14 +936,16 @@ config.json에 `"model_type": "qwen2_5_vl"` 명시. Vision 부분은 from scratc
 | 컴포넌트 | 결과 | 근거 |
 |----------|------|------|
 | Vision Encoder | ❌ From scratch 아님 | Qwen2.5 ViT 명시적 사용 |
-| Tokenizer | ⚠️ 의문점 | vocab_size가 Llama 3와 동일 |
+| Tokenizer | ⚠️ 재해석 필요 | Llama 3와 256 차이, 한국어 최적화 설계로 보임 |
 | Text Decoder | ⚠️ 조건부 지지 | Architecture는 고유하나 추가 검증 필요 |
 
 ### 결론
 
-**완전한 from scratch라고 보기 어려움**
+**완전한 from scratch라고 보기 어려움 (단, Tokenizer는 재해석 필요)**
 
-Vision Encoder가 Qwen2.5 ViT를 그대로 사용한다는 점이 config.json에 명시되어 있습니다. 이는 VLM에서 Vision 부분은 재사용했음을 의미합니다. Text Decoder(LLM 본체)는 고유한 architecture를 가지고 있으나, tokenizer의 vocab_size가 Llama 3와 정확히 일치하여 추가 검증이 필요합니다.
+Vision Encoder가 Qwen2.5 ViT를 그대로 사용한다는 점이 config.json에 명시되어 있습니다. 이는 VLM에서 Vision 부분은 재사용했음을 의미합니다.
+
+Tokenizer에 대해서는 추가 검증 결과, vocab_size 128,256이 Llama 3 (128,000)와 **256 토큰 차이**가 있음이 확인되었습니다. Trillion-7B 논문에 따르면 이 vocab 크기는 한국어 최적화를 위한 독자 설계로 보이며, 단순한 Llama 3 tokenizer 재사용이 아닐 가능성이 있습니다. 다만, HyperCLOVA X (100k)에서 SEED (128k)로의 변경 이유가 공식 문서화되지 않아 완전한 결론은 어렵습니다.
 
 상세 분석: 각 분석 문서(01-04)의 "모델별 검증 결과" 섹션 참조
 

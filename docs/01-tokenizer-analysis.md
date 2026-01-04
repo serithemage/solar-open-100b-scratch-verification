@@ -82,15 +82,33 @@ Tokenizer 분석은 LLM이 from scratch로 학습되었는지 판별하는 가�
 
 ### 2. NAVER Cloud HyperCLOVAX-SEED-Think-32B ⚠️
 
-**검증일**: 2026-01-05
+**검증일**: 2026-01-05 (추가 검증: 2026-01-05)
 
 #### Vocabulary 크기 비교
 
 | 모델 | Vocab Size | 비고 |
 |------|-----------|------|
-| **HyperCLOVAX-SEED** | **128,256** | Llama 3와 동일 |
-| Llama 3 | 128,256 | 정확히 일치 |
-| HyperCLOVA X (논문) | 100,000 | "SEED" 버전과 다름 |
+| **HyperCLOVAX-SEED** | **128,256** | Llama 3와 256 차이 |
+| Llama 3/3.1 | 128,000 | 256 토큰 차이 |
+| Trillion-7B | 128,256 | 정확히 일치 |
+| HyperCLOVA X (논문) | 100,000 | "SEED" 버전과 28,256 차이 |
+
+#### 크로스 체크 결과 (2026-01-05 추가)
+
+| 소스 | 확인된 vocab_size | 비고 |
+|------|------------------|------|
+| config.json (HuggingFace) | 128,256 | `text_config.vocab_size` |
+| tokenizer_config.json | 128,256 | added_tokens_decoder ID 범위 |
+| HyperCLOVA X 기술 보고서 | 100,000 | 원래 HyperCLOVA X |
+| Trillion-7B 논문 (arXiv) | 128,256 | 동일 vocab 설계 참조 |
+
+**핵심 발견:**
+1. **Llama 3 (128,000) ≠ HyperCLOVAX-SEED (128,256)**: 256 토큰 차이 존재
+2. **Trillion-7B 논문**에 따르면 128,256 vocab 구성:
+   - ~100,000: 영어 토큰
+   - ~24,552: 한국어 토큰 (한국어 추론 속도 35% 향상 목적)
+   - 나머지: 다국어 토큰
+3. 단순히 "Llama 3 tokenizer + 256 special tokens"가 아닌, **한국어 최적화를 위한 독자 설계**로 보임
 
 #### Special Tokens 비교
 
@@ -104,11 +122,12 @@ Tokenizer 분석은 LLM이 from scratch로 학습되었는지 판별하는 가�
 
 | 지표 | 결과 | 해석 |
 |------|------|------|
-| **Vocab Size** | Llama 3와 동일 (128,256) | ⚠️ 의문점 |
+| **Vocab Size** | Llama 3와 256 차이 (128,256 vs 128,000) | ⚠️ 재해석 필요 |
 | **Special Tokens** | 독자적 구성 | ✅ 지지 |
-| **논문 불일치** | HyperCLOVA X(100k) vs SEED(128k) | ⚠️ 추가 검증 필요 |
+| **논문 불일치** | HyperCLOVA X(100k) vs SEED(128k) | ⚠️ 설명 필요 |
+| **Trillion-7B 유사성** | 동일한 128,256 vocab | ⚠️ 관계 불명확 |
 
-**결론: 추가 검증 필요 (vocab_size가 Llama 3와 정확히 일치)**
+**결론: Tokenizer는 Llama 3 직접 재사용이 아닌 한국어 최적화 확장으로 보이나, HyperCLOVA X(100k)에서 SEED(128k)로의 변경 이유가 공식 문서화되지 않아 추가 검증 필요**
 
 ---
 

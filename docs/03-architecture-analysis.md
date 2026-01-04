@@ -156,9 +156,11 @@ HyperCLOVAX-SEED-Think-32B는 **VLM**으로 세 가지 컴포넌트로 구성됩
 | **Text Decoder** | 고유 architecture | ✅ 지지 |
 | **Vision Encoder** | Qwen2.5 ViT 사용 | ❌ 재사용 |
 | **rope_theta** | 50M (고유값) | ✅ 지지 |
-| **vocab_size** | Llama 3와 동일 | ⚠️ 의문점 |
+| **vocab_size** | Llama 3와 256 차이 (128,256 vs 128,000) | ⚠️ 재해석 필요 |
 
-**결론: 부분적 재사용 (Vision Encoder는 from scratch 아님)**
+> **참고 (2026-01-05 추가 검증)**: vocab_size 128,256은 Llama 3 (128,000)와 정확히 일치하지 않음. Trillion-7B 논문에 따르면 128,256은 한국어 최적화를 위한 독자 설계(~100k 영어 + ~24.5k 한국어)로 보임.
+
+**결론: 부분적 재사용 (Vision Encoder는 from scratch 아님, Tokenizer는 재해석 필요)**
 
 ---
 
@@ -415,7 +417,7 @@ K-EXAONE은 **LLLG 패턴 (Local-Local-Local-Global)**으로 Sliding과 Full Att
 | Mixtral-8x7B | MoE | 32 | 4,096 | 32 | 8 | 8 | 32,000 |
 | DeepSeek-V2 | MoE | 60 | 5,120 | 128 | 128 | 160+2 | 102,400 |
 | Qwen2-57B-A14B | MoE | 28 | 3,584 | 28 | 4 | 64 | 151,936 |
-| Llama-3-70B | Dense | 80 | 8,192 | 64 | 8 | - | 128,256 |
+| Llama-3-70B | Dense | 80 | 8,192 | 64 | 8 | - | 128,000 |
 
 ---
 
