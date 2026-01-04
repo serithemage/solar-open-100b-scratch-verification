@@ -1,5 +1,7 @@
 # 국가 AI 파운데이션 모델 "From Scratch" 검증 프로젝트
 
+> ⚠️ **면책 조항**: 이 검증은 LLM 비전문가가 AI 도구(Claude, Perplexity)에 의존하여 진행한 것입니다. 분석 결과에 오류가 있을 수 있으며, 전문가의 추가 검증이 필요합니다. 이슈나 PR을 통한 피드백을 환영합니다.
+
 > **리포지토리 이름 변경 안내**: 이 프로젝트는 `solar-open-100b-scratch-verification`에서 `korea-ai-foundation-model-verification`으로 이름이 변경되었습니다. 이전 URL로 접속하면 자동으로 이 페이지로 리다이렉트됩니다.
 
 ## 프로젝트 개요
