@@ -193,22 +193,92 @@ LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방�
 | 4 | 행동 분석 | 중간 | 높음 | 보통 | [상세 보기](docs/04-behavior-analysis.md) |
 | 5 | Training Logs 검증 | 매우 높음 | 낮음 | 우수 | (접근 불가) |
 
-### 방법론 요약
+### 방법론 상세 설명
 
-**1. [Tokenizer 분석](docs/01-tokenizer-analysis.md)**
-- Vocabulary 비교, BPE merge rules 분석, 특수 토큰 패턴 비교
+#### 1. [Tokenizer 분석](docs/01-tokenizer-analysis.md) - 가장 접근성 높은 방법
 
-**2. [Weight 분석](docs/02-weight-analysis.md)**
-- Layer별 cosine similarity, Weight tensor 해시 비교, PCA 분포 분석
+**왜 Tokenizer가 중요한가?**
+- Fine-tuning 시 tokenizer를 재학습하는 경우가 거의 없음 (embedding 호환성, 비용, 성능 저하 위험)
+- Tokenizer의 유사성은 모델 기원을 추적하는 강력한 지표
 
-**3. [Architecture 분석](docs/03-architecture-analysis.md)**
-- config.json 비교, MoE 구조 분석, RoPE/Attention 설정 비교
+**분석 항목:**
+- **Vocabulary 비교**: `vocab_size`가 정확히 일치하면 동일 tokenizer 사용 강력 의심
+- **BPE Merge Rules**: merge 순서가 동일하면 같은 tokenizer 증거
+- **Special Tokens**: `<s>`, `</s>`, `<pad>` 등 패턴 비교
 
-**4. [행동 분석](docs/04-behavior-analysis.md)**
-- Knowledge cutoff 테스트, Refusal pattern 분석, Safety alignment 특성
+**판정 기준:**
 
-**5. Training Logs 검증** (접근 불가)
-- Loss curve 패턴 분석, Compute 추정 (Chinchilla scaling 기준)
+| 중복률 | 해석 |
+|--------|------|
+| **>98%** | Fine-tuning 가능성 높음 |
+| **90-98%** | Continued pre-training 또는 vocabulary 확장 |
+| **<90%** | From scratch 학습 강력 증거 |
+
+---
+
+#### 2. [Weight 분석](docs/02-weight-analysis.md) - 직접적인 증거
+
+**Cosine Similarity란?**
+- 두 벡터 간의 방향적 유사성 측정: `cos(θ) = (A · B) / (||A|| × ||B||)`
+- 결과 범위: -1 ~ 1 (1에 가까울수록 유사)
+
+**분석 항목:**
+- **Layer별 Cosine Similarity**: Fine-tuned 모델은 초기 layer에서 >0.95 유사도
+- **Weight Tensor 해싱**: SHA-256으로 fingerprint 비교
+- **PCA 분포 분석**: Fine-tuned는 base model 근처에 clustering
+
+**판정 기준:**
+
+| 지표 | Fine-tuning | From Scratch |
+|------|-------------|--------------|
+| 평균 Layer Cosine Sim | >0.90 | <0.3 |
+| Embedding Cosine Sim | >0.98 | <0.1 |
+
+**한계:** Architecture가 다르면 직접 비교 불가 → 이 자체가 from scratch 증거
+
+---
+
+#### 3. [Architecture 분석](docs/03-architecture-analysis.md) - 구조적 독립성
+
+**왜 Architecture가 중요한가?**
+- Fine-tuned 모델은 base model과 **동일한 architecture**를 가져야 함
+- Architecture가 다르면 weight 비교 자체가 불가능
+
+**분석 항목:**
+- `hidden_size`, `num_layers`, `num_attention_heads`, `num_kv_heads`
+- MoE 구조: `n_routed_experts`, `n_shared_experts`, `num_experts_per_tok`
+- RoPE 설정: `rope_theta`, `rope_scaling`
+- Attention 방식: GQA, MHA, Sliding Window 등
+
+**판정 기준:**
+- 핵심 5개 항목 중 0개 완전 일치 → 독립적 설계 (From scratch 지지)
+- 특정 모델과 완전한 config 일치 → Fine-tuning 의심
+
+---
+
+#### 4. [행동 분석](docs/04-behavior-analysis.md) - 간접적 증거
+
+**분석 항목:**
+- **Knowledge Cutoff**: base model과 동일한 cutoff는 fine-tuning 의심
+- **Refusal Pattern**: 특정 모델 특유의 거부 문구 패턴
+- **출력 스타일**: 응답 구조 및 형식의 유사성
+
+**한계:**
+- Post-training으로 행동 수정 가능
+- RLHF/DPO로 base 특성 변경 가능
+- 직접 실행 환경 없이 분석 어려움
+
+---
+
+#### 5. Training Logs 검증 (접근 불가) - 가장 확실한 증거
+
+**가장 신뢰할 수 있는 방법이지만 일반적으로 비공개:**
+- Loss curve 패턴 분석
+- Compute 추정 (Chinchilla scaling 기준)
+- Random initialization 증거
+- 중간 checkpoint 확인
+
+> Solar-Open-100B는 [공개 검증 세션](https://www.youtube.com/live/2YY9aAUSo_w)에서 training logs를 제시한 유일한 모델
 
 ---
 
