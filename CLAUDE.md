@@ -1,56 +1,44 @@
-# Solar-Open-100B 검증 프로젝트 - Claude 지침
+# CLAUDE.md
 
-## 프로젝트 목적
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-이 프로젝트는 Upstage의 Solar-Open-100B 모델이 실제로 "from scratch"로 학습되었는지 검증합니다.
-검증 과정의 모든 Q&A는 튜토리얼 형태로 `docs/00-tutorial.md`에 기록됩니다.
+## 프로젝트 개요
+
+Upstage의 Solar-Open-100B 모델이 "from scratch"로 학습되었는지 검증하는 프로젝트입니다.
+검증 과정의 모든 Q&A는 `docs/00-tutorial.md`에 기록됩니다.
+
+**검증 대상**: [upstage/Solar-Open-100B](https://huggingface.co/upstage/Solar-Open-100B)
+- 공식 주장: "Trained Entirely from Scratch"
+- 아키텍처: MoE (102.6B total, 12B active, 129 experts)
+- 학습 토큰: 19.7T tokens
+
+## 사용 가능한 커맨드
+
+| 커맨드 | 설명 |
+|--------|------|
+| `/commit-push` | 변경사항 분석 후 커밋 & 푸시 |
+| `/save` 또는 `/save {메시지}` | 빠른 커밋 & 푸시 |
+| `/update-tutorial` | Q&A 튜토리얼 수동 업데이트 |
 
 ## 질문 처리 워크플로우
-
-### 사용자 입력 유형 판별
 
 ```
 사용자 입력
     │
-    ├─ 질문인가? (?, ~인가요, ~뭔가요, 설명해줘 등)
-    │   │
-    │   └─ YES → Perplexity MCP로 조사 → docs/00-tutorial.md에 Q&A 추가
+    ├─ 질문인가? (?, 설명해줘, ~인가요 등)
+    │   └─ YES → Perplexity MCP 조사 (영문) → docs/00-tutorial.md에 Q&A 추가
     │
-    └─ 명령인가? (실행해, 분석해, 만들어 등)
-        │
+    └─ 명령인가? (실행해, 분석해 등)
         └─ YES → 명령 실행 (튜토리얼 업데이트 없음)
 ```
 
-### Perplexity MCP 조사 규칙
+### Perplexity MCP 규칙
 
-**중요**: 검증 관련 질문을 받으면 반드시 Perplexity MCP를 사용하여 조사합니다.
+1. **영문으로 쿼리 작성** (글로벌 CLAUDE.md 지침)
+2. **조사 결과를 한국어로 정리**
+3. `docs/00-tutorial.md`의 `<!-- TUTORIAL_MARKER -->` 위에 Q&A 추가
 
-1. **영문으로 쿼리 작성** (사용자의 전역 CLAUDE.md 지침)
-2. **구체적이고 기술적인 질문으로 변환**
-3. **조사 결과를 한국어로 정리하여 튜토리얼에 추가**
-
-예시:
-- 사용자: "Tokenizer 분석에 대해서 자세하게 설명해줘"
-- Perplexity 쿼리: "How to analyze LLM tokenizers to determine if a model was trained from scratch or fine-tuned, including BPE, SentencePiece comparison techniques"
-
-### 튜토리얼에 기록해야 하는 Q&A 유형
-
-다음 주제에 대한 질문과 답변은 반드시 `docs/00-tutorial.md`에 추가:
-
-1. **LLM 학습 검증 방법론** - from scratch vs fine-tuning 판별법
-2. **Tokenizer 분석** - vocabulary 비교, BPE merge 분석
-3. **Weight 분석** - cosine similarity, 해싱, PCA
-4. **Architecture 분석** - config 비교, 구조적 특징
-5. **Solar-Open-100B 구체적 분석 결과** - 실제 검증 수행 결과
-6. **MoE 모델 관련 지식** - Mixture-of-Experts 아키텍처
-
-### Q&A 추가 프로세스
-
-1. **Perplexity MCP로 조사** (영문 쿼리)
-2. **조사 결과를 구조화된 한국어 답변으로 정리**
-3. `docs/00-tutorial.md`의 `<!-- TUTORIAL_MARKER -->` 위에 새 Q&A 추가
-4. Q&A 번호는 기존 Q&A 개수 + 1
-5. 형식:
+### Q&A 형식
 
 ```markdown
 ---
@@ -61,30 +49,39 @@
 
 **답변**:
 
-{Perplexity MCP 조사 기반 구조화된 답변}
+{구조화된 답변}
 
 ---
 ```
 
-### 검증 진행 상황 업데이트
+## 튜토리얼에 기록할 주제
 
-검증 작업 수행 시 README.md의 "검증 진행 상황" 체크리스트도 함께 업데이트
+1. LLM 학습 검증 방법론 (from scratch vs fine-tuning)
+2. Tokenizer 분석 (vocabulary, BPE merge, special tokens)
+3. Weight 분석 (cosine similarity, 해싱, PCA)
+4. Architecture 분석 (config 비교, MoE 구조)
+5. Solar-Open-100B 검증 결과
+
+## 검증 진행 상황
+
+- [x] **Tokenizer 분석** → From scratch 지지
+  - Solar vocab_size: 196,608 (모든 비교 대상과 불일치)
+- [ ] Architecture 분석
+- [ ] Weight 분석 (compute 리소스 필요)
+- [ ] 행동 분석
 
 ## 주요 파일
 
-- `README.md` - 프로젝트 메인 문서
-- `docs/00-tutorial.md` - Q&A 튜토리얼 (자동 업데이트 대상)
-- `docs/01-tokenizer-analysis.md` - Tokenizer 분석 상세
-- `docs/02-weight-analysis.md` - Weight 분석 상세
-- `docs/03-architecture-analysis.md` - Architecture 분석 상세
-- `docs/04-behavior-analysis.md` - 행동 분석 상세
-- `.claude/skills/update-tutorial.md` - 튜토리얼 업데이트 skill
-- `.claude/settings.json` - hooks 설정
+| 파일 | 역할 |
+|------|------|
+| `docs/00-tutorial.md` | Q&A 튜토리얼 (자동 업데이트 대상) |
+| `docs/01-tokenizer-analysis.md` | Tokenizer 분석 상세 + 결과 |
+| `docs/02-weight-analysis.md` | Weight 분석 상세 |
+| `docs/03-architecture-analysis.md` | Architecture 분석 상세 |
+| `docs/04-behavior-analysis.md` | 행동 분석 상세 |
+| `.claude/skills/update-tutorial.md` | 튜토리얼 업데이트 skill |
+| `.claude/commands/*.md` | 커스텀 커맨드 정의 |
 
-## 검증 대상 모델
+## 검증 작업 시 참고
 
-- **모델**: upstage/Solar-Open-100B
-- **URL**: https://huggingface.co/upstage/Solar-Open-100B
-- **공식 주장**: "Trained Entirely from Scratch"
-- **학습 토큰**: 19.7T tokens
-- **아키텍처**: MoE (102.6B total, 12B active)
+검증 작업 수행 후 README.md의 "검증 진행 상황" 체크리스트도 함께 업데이트할 것.
