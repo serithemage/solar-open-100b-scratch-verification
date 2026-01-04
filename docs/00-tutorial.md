@@ -719,4 +719,103 @@ Solar-Open-100B만의 특징:
 
 ---
 
+## Q8: Solar-Open-100B의 행동 분석 결과는? (표절 논란과 공개 검증)
+
+**질문 시각**: 2026-01-04
+
+**답변**:
+
+Solar-Open-100B에 대한 행동 분석을 진행하던 중, 2026년 1월 초 한국에서 발생한 **표절 논란**과 **공개 검증 세션**에 대한 정보를 발견했습니다. 이는 "from scratch" 검증에 매우 중요한 정보입니다.
+
+### 표절 논란 발생 (2026-01-01)
+
+Sionic AI CEO 고석현이 LinkedIn과 GitHub에 기술 분석을 게시하며 다음을 주장:
+
+| 주장 | 내용 |
+|------|------|
+| **LayerNorm 유사도** | Solar-Open-100B와 Zhipu AI GLM-4.5-Air 간 96.8% cosine similarity |
+| **코드 흔적** | GLM 스타일 config 코드 및 Zhipu AI 라이선스 참조 발견 |
+| **결론** | Fine-tuning된 모델로 의심, 국가 AI 프로젝트 규정 위반 가능성 |
+
+### Zhipu AI GLM-4.5-Air란?
+
+| 항목 | GLM-4.5-Air | Solar-Open-100B |
+|------|-------------|-----------------|
+| **총 파라미터** | 106B | 102.6B |
+| **활성 파라미터** | 12B | 12B |
+| **Architecture** | MoE | MoE |
+| **Context Length** | 128K | 128K |
+| **상세 config** | 비공개 | 공개 (HuggingFace) |
+
+두 모델의 파라미터 규모와 활성 파라미터가 매우 유사합니다.
+
+### Upstage 공개 검증 세션 (2026-01-02)
+
+Upstage는 서울 강남 사무실에서 공개 검증 세션을 개최:
+
+**공개된 증거:**
+1. **Training Checkpoints** - 학습 과정의 중간 체크포인트
+2. **WandB 실험 로그** - 학습 과정 전체 기록
+3. **중간 산출물(Artifacts)** - 학습 중 생성된 데이터
+4. **전체 학습 히스토리** - 처음부터 끝까지의 기록
+
+**Upstage 주장:**
+- Random initialization에서 시작하여 처음부터 학습
+- 중국 모델 가중치 재사용 없음
+- 코드 내 중국어 저작권 표시는 실수
+
+### 검증 결과
+
+| 항목 | 결과 |
+|------|------|
+| **검증 방식** | 공개 세션, 외부 전문가 초청 |
+| **제시된 증거** | Training logs, checkpoints, WandB logs |
+| **결과** | From scratch 학습 주장 유지 |
+| **고석현 대응** | 2026-01-03 부분 사과 (성급한 판단 인정) |
+
+### Knowledge Cutoff 비교
+
+| 모델 | Knowledge Cutoff | 학습 데이터 |
+|------|-----------------|-------------|
+| **Solar-Open-100B** | 미공개 | 19.7T tokens (미공개 데이터셋) |
+| **Llama-3** | 2023년 12월 | 15T+ tokens |
+| **Mixtral-8x7B** | 미공개 (추정 2023년 10월) | 미공개 |
+| **GLM-4.5-Air** | 미공개 | 미공개 |
+
+Solar-Open-100B의 knowledge cutoff가 공식적으로 공개되지 않아 직접 비교가 어렵습니다.
+
+### 행동 분석의 한계
+
+| 분석 항목 | 가능 여부 | 이유 |
+|----------|----------|------|
+| Knowledge Cutoff 테스트 | ⚠️ 제한적 | 공식 cutoff 미공개 |
+| Refusal Pattern 분석 | ⚠️ 제한적 | Safety alignment 정보 미공개 |
+| 출력 스타일 비교 | ⚠️ 제한적 | 직접 실행 환경 없음 |
+| LayerNorm 유사도 확인 | ❌ 미검증 | GLM-4.5-Air config 미공개 |
+
+### 행동 분석 결론
+
+| 판정 | 결과 |
+|------|------|
+| **표절 의혹** | 제기됨 (LayerNorm 96.8% 유사도) |
+| **Upstage 대응** | 공개 검증 세션 + 증거 제시 |
+| **현재 상태** | From scratch 주장 유지, 논란은 일단락 |
+| **추가 검증 필요** | GLM-4.5-Air config 공개 시 architecture 비교 가능 |
+
+### 종합 판단
+
+**긍정적 요소 (From scratch 지지):**
+- Upstage가 training logs, checkpoints 등 증거 공개
+- 외부 전문가 초청 공개 검증 진행
+- 고석현 CEO 부분 사과
+
+**주의 요소:**
+- LayerNorm 96.8% 유사도는 여전히 설명 필요
+- GLM-4.5-Air와의 상세 architecture 비교 불가 (config 미공개)
+- 독립적 제3자 검증 결과 미공개
+
+**결론: 행동 분석만으로는 확정적 판단 어려움. 그러나 Tokenizer와 Architecture 분석에서 확인된 고유성을 고려하면, From scratch 주장은 일정 수준 신뢰할 수 있음.**
+
+---
+
 <!-- TUTORIAL_MARKER: 새로운 Q&A는 이 마커 위에 자동 추가됩니다 -->

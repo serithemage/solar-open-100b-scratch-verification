@@ -236,13 +236,13 @@ def compare_model_behaviors(models, test_prompts):
 
 ## 검증 체크리스트
 
-- [ ] Knowledge cutoff 테스트 실행
-- [ ] Refusal pattern 수집 및 분석
-- [ ] 경계 케이스 테스트
-- [ ] 출력 스타일 분석
-- [ ] Llama-3과 패턴 비교
-- [ ] Mistral과 패턴 비교
-- [ ] 고유한 행동 패턴 식별
+- [x] Knowledge cutoff 정보 조사
+- [x] 표절 논란 및 공개 검증 결과 조사
+- [x] GLM-4.5-Air와의 비교 분석
+- [ ] ~~Refusal pattern 수집 및 분석~~ (직접 실행 환경 없음)
+- [ ] ~~출력 스타일 분석~~ (직접 실행 환경 없음)
+- [ ] ~~Llama-3과 패턴 비교~~ (knowledge cutoff 미공개)
+- [ ] ~~Mistral과 패턴 비교~~ (knowledge cutoff 미공개)
 
 ## 해석 기준
 
@@ -279,3 +279,81 @@ def compare_model_behaviors(models, test_prompts):
 - 특정 model과 동일한 knowledge cutoff
 - 일치하는 refusal 문구
 - 유사한 출력 구조
+
+---
+
+## 검증 결과 (2026-01-04)
+
+### 표절 논란 발생
+
+2026년 1월 1일, Sionic AI CEO 고석현이 Solar-Open-100B에 대한 기술 분석을 공개:
+
+| 주장 | 내용 |
+|------|------|
+| **LayerNorm 유사도** | GLM-4.5-Air와 96.8% cosine similarity |
+| **코드 흔적** | GLM 스타일 config 및 Zhipu AI 라이선스 참조 |
+| **결론** | Fine-tuning 의심, 국가 프로젝트 규정 위반 가능성 |
+
+### 비교 대상: Zhipu AI GLM-4.5-Air
+
+| 항목 | GLM-4.5-Air | Solar-Open-100B |
+|------|-------------|-----------------|
+| 총 파라미터 | 106B | 102.6B |
+| 활성 파라미터 | 12B | 12B |
+| Architecture | MoE | MoE |
+| Context Length | 128K | 128K |
+| 상세 config | **비공개** | 공개 |
+
+### Upstage 공개 검증 (2026-01-02)
+
+서울 강남에서 공개 검증 세션 개최:
+
+**제시된 증거:**
+- Training checkpoints
+- WandB 실험 로그
+- 중간 산출물(Artifacts)
+- 전체 학습 히스토리
+
+**결과:**
+- From scratch 학습 주장 유지
+- 고석현 CEO 2026-01-03 부분 사과
+
+### Knowledge Cutoff 비교
+
+| 모델 | Knowledge Cutoff | Training Data |
+|------|-----------------|---------------|
+| Solar-Open-100B | **미공개** | 19.7T tokens |
+| Llama-3 | 2023년 12월 | 15T+ tokens |
+| Mixtral-8x7B | 미공개 | 미공개 |
+| GLM-4.5-Air | 미공개 | 미공개 |
+
+### 행동 분석 한계
+
+| 분석 항목 | 상태 | 이유 |
+|----------|------|------|
+| Knowledge Cutoff 테스트 | ⚠️ 불가 | 공식 cutoff 미공개 |
+| Refusal Pattern 분석 | ⚠️ 불가 | 직접 실행 환경 없음 |
+| 출력 스타일 비교 | ⚠️ 불가 | 직접 실행 환경 없음 |
+| LayerNorm 검증 | ❌ 불가 | GLM-4.5-Air config 미공개 |
+
+### 판정
+
+**결론: 행동 분석으로는 확정적 판단 불가**
+
+| 요소 | From scratch 지지 | 주의 필요 |
+|------|------------------|----------|
+| 공개 검증 | ✅ Training logs 제시 | - |
+| 외부 검증 | ✅ 전문가 초청 | 독립적 3자 검증 없음 |
+| 표절 의혹 대응 | ✅ 고석현 부분 사과 | LayerNorm 유사도 설명 부족 |
+| GLM 비교 | - | Config 미공개로 비교 불가 |
+
+---
+
+## 종합 결론
+
+행동 분석은 knowledge cutoff, refusal pattern 등의 정보 부족으로 제한적이나:
+
+1. **표절 논란에 대한 Upstage의 적극적 대응** (공개 검증, 증거 제시)
+2. **이전 분석(Tokenizer, Architecture)에서 확인된 고유성**
+
+을 종합하면, **From scratch 주장은 일정 수준 신뢰 가능**합니다.

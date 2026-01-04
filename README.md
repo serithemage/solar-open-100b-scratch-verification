@@ -198,9 +198,47 @@ LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방�
 - [x] Weight 분석 ✅ **완료 (2026-01-04)** → **비교 불가 (From scratch 증거)**
   - [x] Architecture 불일치로 직접 weight 비교 불가능
   - [x] 이 자체가 from scratch의 강력한 증거
-- [ ] 행동 분석
-  - [ ] Knowledge cutoff 테스트
-  - [ ] 특정 패턴 테스트
+- [x] 행동 분석 ✅ **완료 (2026-01-04)** → **제한적 (정보 부족)**
+  - [x] Knowledge cutoff 미공개로 직접 테스트 불가
+  - [x] 표절 논란 발생 (2026-01-01): GLM-4.5-Air와 LayerNorm 96.8% 유사도 주장
+  - [x] Upstage 공개 검증 (2026-01-02): Training logs, checkpoints 공개
+  - [x] 결론: 행동 분석만으로는 확정 불가, 종합적으로 From scratch 지지
+
+---
+
+## 종합 검증 결론
+
+### 분석 결과 요약
+
+| 분석 방법 | 결과 | 신뢰도 | From scratch 지지 |
+|----------|------|--------|------------------|
+| **Tokenizer** | vocab_size 196,608 (모든 모델과 불일치) | 높음 | ✅ 강력 지지 |
+| **Architecture** | 48 layers, 129 experts (모든 모델과 불일치) | 높음 | ✅ 강력 지지 |
+| **Weight** | Architecture 불일치로 비교 불가 | 높음 | ✅ 간접 지지 |
+| **행동** | Knowledge cutoff 미공개, 표절 논란 → 공개 검증 | 중간 | ⚠️ 조건부 지지 |
+
+### 최종 판정
+
+**From scratch 학습 주장: 신뢰 가능 (조건부)**
+
+**지지 근거:**
+1. Tokenizer vocabulary가 모든 비교 대상과 완전히 다름 (196,608)
+2. Architecture가 어떤 기존 MoE 모델과도 일치하지 않음
+3. 고유한 Expert 구성 (128 routed + 1 shared)
+4. Upstage의 공개 검증 세션에서 training logs, checkpoints 제시
+
+**주의 사항:**
+1. GLM-4.5-Air와의 LayerNorm 96.8% 유사도 의혹 (Upstage 해명 필요)
+2. GLM-4.5-Air의 상세 config 미공개로 직접 비교 불가
+3. 독립적 제3자 검증 결과 부재
+
+### 추가 검증 권장 사항
+
+| 항목 | 방법 | 가능 시점 |
+|------|------|----------|
+| GLM-4.5-Air config 비교 | Zhipu AI config 공개 시 architecture 비교 | 미정 |
+| LayerNorm weight 검증 | 두 모델 weight 직접 비교 | GLM config 공개 시 |
+| 독립적 3자 검증 | 학술/산업 기관 검증 | 미정 |
 
 ---
 
