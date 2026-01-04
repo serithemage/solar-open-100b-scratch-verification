@@ -1,5 +1,7 @@
 # 국가 AI 파운데이션 모델 "From Scratch" 검증 프로젝트
 
+> **리포지토리 이름 변경 안내**: 이 프로젝트는 `solar-open-100b-scratch-verification`에서 `korea-ai-foundation-model-verification`으로 이름이 변경되었습니다. 이전 URL로 접속하면 자동으로 이 페이지로 리다이렉트됩니다.
+
 ## 프로젝트 개요
 
 ### 시작 동기
