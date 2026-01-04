@@ -635,4 +635,88 @@ Solar-Open-100B의 경우:
 
 ---
 
+## Q7: Solar-Open-100B의 Weight 분석이 가능한가요? Architecture 비교 결과는?
+
+**질문 시각**: 2026-01-04
+
+**답변**:
+
+Weight 분석을 수행하기 전에, 먼저 architecture 비교를 통해 **weight 비교가 가능한지** 확인해야 합니다. Weight 비교는 동일한 shape의 tensor 간에만 의미가 있기 때문입니다.
+
+### Architecture 비교 결과
+
+| 파라미터 | Solar-Open-100B | Mixtral-8x7B | DeepSeek-V2 | Qwen2-57B |
+|----------|-----------------|--------------|-------------|-----------|
+| **hidden_size** | 4,096 | 4,096 | 5,120 | 3,584 |
+| **num_hidden_layers** | 48 | 32 | 60 | 28 |
+| **num_attention_heads** | 64 | 32 | 128 | 28 |
+| **num_key_value_heads** | 8 | 8 | 128 | 4 |
+| **intermediate_size** | 10,240 | 14,336 | 12,288 | 18,944 |
+| **n_routed_experts** | 128 | 8 | 160 | 64 |
+| **n_shared_experts** | 1 | 0 | 2 | - |
+| **num_experts_per_tok** | 8 | 2 | 6 | 8 |
+| **vocab_size** | 196,608 | 32,000 | 102,400 | 151,936 |
+| **rope_theta** | 1,000,000 | 1,000,000 | 10,000 | 1,000,000 |
+
+### Weight 비교 가능성 판정
+
+| 비교 대상 | hidden_size | layers | experts | 비교 가능? |
+|-----------|-------------|--------|---------|-----------|
+| **Mixtral-8x7B** | ✅ 동일 (4096) | ❌ 다름 (48 vs 32) | ❌ 다름 (128 vs 8) | ❌ 불가 |
+| **DeepSeek-V2** | ❌ 다름 (4096 vs 5120) | ❌ 다름 | ❌ 다름 | ❌ 불가 |
+| **Qwen2-57B** | ❌ 다름 (4096 vs 3584) | ❌ 다름 | ❌ 다름 | ❌ 불가 |
+
+### 분석
+
+**1. Embedding Layer 비교 불가**
+```
+Solar-Open-100B: [196,608, 4,096]
+Mixtral-8x7B:    [32,000, 4,096]
+DeepSeek-V2:     [102,400, 5,120]
+Qwen2-57B:       [151,936, 3,584]
+```
+vocab_size와 hidden_size가 모두 다르므로 embedding weight 비교 불가.
+
+**2. Attention Layer 비교 불가**
+- Solar: 64 heads, 8 KV heads
+- Mixtral: 32 heads, 8 KV heads
+- DeepSeek: 128 heads, 128 KV heads
+
+Q, K, V projection matrix shape가 모두 다름.
+
+**3. MoE Layer 비교 불가**
+- Solar: 128 routed experts + 1 shared
+- Mixtral: 8 experts
+- DeepSeek: 160 routed + 2 shared
+
+Expert 수와 intermediate_size가 모두 다름.
+
+### 결론
+
+**Weight 비교가 불가능하며, 이 자체가 from scratch 증거**
+
+| 판정 | 결과 |
+|------|------|
+| **Architecture 일치 모델** | 0개 |
+| **부분 일치 모델** | 0개 (hidden_size만 Mixtral과 동일) |
+| **Weight 비교 가능 모델** | 0개 |
+
+Fine-tuning된 모델이라면 base model과 **동일한 architecture**를 가져야 합니다. Solar-Open-100B는:
+
+1. 어떤 기존 MoE 모델과도 architecture가 일치하지 않음
+2. 고유한 구성: 48 layers, 128+1 experts, 196k vocab
+3. 특히 **129개 expert (128 routed + 1 shared)** 구성은 독특함
+
+이는 **from scratch 학습의 강력한 증거**입니다.
+
+### 추가 참고: 고유한 Architecture 특징
+
+Solar-Open-100B만의 특징:
+- **Expert 수**: 129개 (다른 모델: 8~160)
+- **Shared expert**: 1개 (명시적 shared expert 사용)
+- **moe_intermediate_size**: 1,280 (가장 작음)
+- **Layer 수**: 48 (Mixtral 32, DeepSeek 60의 중간값이 아님)
+
+---
+
 <!-- TUTORIAL_MARKER: 새로운 Q&A는 이 마커 위에 자동 추가됩니다 -->

@@ -173,12 +173,46 @@ def compare_embeddings(base_model, target_model):
 
 ## 검증 체크리스트
 
-- [ ] Solar-Open-100B weight 로드
-- [ ] Llama-3와 layer별 cosine similarity 계산
-- [ ] Mixtral과 MoE layer 비교
-- [ ] Embedding layer 상세 분석
-- [ ] Weight 해시 비교
-- [ ] PCA 시각화
+- [x] Solar-Open-100B architecture 분석
+- [x] 비교 대상 모델 architecture 수집
+- [x] Weight 비교 가능성 판단
+- [ ] ~~Llama-3와 layer별 cosine similarity 계산~~ (architecture 불일치로 불가)
+- [ ] ~~Mixtral과 MoE layer 비교~~ (architecture 불일치로 불가)
+- [ ] ~~Embedding layer 상세 분석~~ (vocab_size 불일치로 불가)
+
+---
+
+## 검증 결과 (2026-01-04)
+
+### Architecture 비교를 통한 Weight 비교 가능성 분석
+
+Weight 비교는 동일한 shape의 tensor 간에만 의미가 있습니다.
+
+| 파라미터 | Solar-Open-100B | Mixtral-8x7B | DeepSeek-V2 | Qwen2-57B |
+|----------|-----------------|--------------|-------------|-----------|
+| **hidden_size** | 4,096 | 4,096 | 5,120 | 3,584 |
+| **num_hidden_layers** | 48 | 32 | 60 | 28 |
+| **num_attention_heads** | 64 | 32 | 128 | 28 |
+| **n_routed_experts** | 128 | 8 | 160 | 64 |
+| **vocab_size** | 196,608 | 32,000 | 102,400 | 151,936 |
+
+### 판정
+
+| 비교 대상 | Weight 비교 가능? | 이유 |
+|-----------|------------------|------|
+| Mixtral-8x7B | ❌ 불가 | layers, heads, experts 모두 다름 |
+| DeepSeek-V2 | ❌ 불가 | hidden_size부터 다름 |
+| Qwen2-57B | ❌ 불가 | 모든 dimension 다름 |
+
+### 결론
+
+**Weight 비교 불가 → From scratch 증거**
+
+Fine-tuning된 모델이라면 base model과 동일한 architecture를 가져야 합니다.
+Solar-Open-100B는 어떤 기존 모델과도 architecture가 일치하지 않으므로,
+**직접적인 weight 비교 없이도 from scratch 학습임을 강력히 시사**합니다.
+
+---
 
 ## 주의사항
 

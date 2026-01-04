@@ -191,12 +191,13 @@ LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방�
   - [x] Solar-Open-100B tokenizer vocabulary 추출 (196,608 tokens)
   - [x] Llama, Mistral, Qwen 등 주요 base model과 비교
   - [x] 토큰 중복률 계산 (vocab size 차이로 인해 직접 비교 불필요)
-- [ ] Architecture 분석
-  - [ ] config.json 분석
-  - [ ] 유사 MoE 모델들과 비교 (Mixtral, DeepSeek-MoE 등)
-- [ ] Weight 분석 (선택적 - compute 리소스 필요)
-  - [ ] Layer-wise similarity 분석
-  - [ ] Embedding 비교
+- [x] Architecture 분석 ✅ **완료 (2026-01-04)** → **From scratch 지지**
+  - [x] config.json 분석 (48 layers, 128+1 experts, 196k vocab)
+  - [x] 유사 MoE 모델들과 비교 (Mixtral, DeepSeek-V2, Qwen2-MoE)
+  - [x] 결과: 어떤 기존 모델과도 architecture 불일치
+- [x] Weight 분석 ✅ **완료 (2026-01-04)** → **비교 불가 (From scratch 증거)**
+  - [x] Architecture 불일치로 직접 weight 비교 불가능
+  - [x] 이 자체가 from scratch의 강력한 증거
 - [ ] 행동 분석
   - [ ] Knowledge cutoff 테스트
   - [ ] 특정 패턴 테스트

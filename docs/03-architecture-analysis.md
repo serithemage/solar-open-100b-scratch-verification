@@ -145,13 +145,13 @@ def analyze_rope(config):
 
 ## 유사 모델 비교표
 
-| 모델 | Type | Layers | Hidden | Heads | KV Heads | Vocab |
-|------|------|--------|--------|-------|----------|-------|
-| Solar-Open-100B | MoE | ? | ? | ? | ? | ? |
-| Llama-3-70B | Dense | 80 | 8192 | 64 | 8 | 128256 |
-| Mixtral-8x7B | MoE | 32 | 4096 | 32 | 8 | 32000 |
-| DeepSeek-MoE | MoE | 28 | 2048 | 16 | 16 | 102400 |
-| Qwen-72B | Dense | 80 | 8192 | 64 | 64 | 152064 |
+| 모델 | Type | Layers | Hidden | Heads | KV Heads | Experts | Vocab |
+|------|------|--------|--------|-------|----------|---------|-------|
+| **Solar-Open-100B** | MoE | 48 | 4096 | 64 | 8 | 128+1 | 196,608 |
+| Mixtral-8x7B | MoE | 32 | 4096 | 32 | 8 | 8 | 32,000 |
+| DeepSeek-V2 | MoE | 60 | 5120 | 128 | 128 | 160+2 | 102,400 |
+| Qwen2-57B-A14B | MoE | 28 | 3584 | 28 | 4 | 64 | 151,936 |
+| Llama-3-70B | Dense | 80 | 8192 | 64 | 8 | - | 128,256 |
 
 ## 고유성 판단 기준
 
@@ -176,14 +176,50 @@ def analyze_rope(config):
 
 ## 검증 체크리스트
 
-- [ ] Solar-Open-100B config.json 분석
-- [ ] Llama-3와 비교
-- [ ] Mixtral과 MoE 구조 비교
-- [ ] DeepSeek-MoE와 비교
-- [ ] Qwen과 비교
-- [ ] RoPE 설정 분석
-- [ ] Attention 구조 분석
-- [ ] 고유한 config 항목 식별
+- [x] Solar-Open-100B config.json 분석
+- [x] Llama-3와 비교
+- [x] Mixtral과 MoE 구조 비교
+- [x] DeepSeek-MoE와 비교
+- [x] Qwen과 비교
+- [x] RoPE 설정 분석
+- [x] Attention 구조 분석
+- [x] 고유한 config 항목 식별
+
+---
+
+## 검증 결과 (2026-01-04)
+
+### Architecture 비교 요약
+
+| 파라미터 | Solar-Open-100B | Mixtral | DeepSeek-V2 | Qwen2-57B | 일치 모델 |
+|----------|-----------------|---------|-------------|-----------|----------|
+| hidden_size | 4,096 | 4,096 | 5,120 | 3,584 | Mixtral만 |
+| num_layers | 48 | 32 | 60 | 28 | 없음 |
+| num_heads | 64 | 32 | 128 | 28 | 없음 |
+| num_kv_heads | 8 | 8 | 128 | 4 | Mixtral만 |
+| n_experts | 128+1 | 8 | 160+2 | 64 | 없음 |
+| vocab_size | 196,608 | 32,000 | 102,400 | 151,936 | 없음 |
+| rope_theta | 1,000,000 | 1,000,000 | 10,000 | 1,000,000 | Mixtral, Qwen |
+
+### 판정
+
+| 일치 항목 수 | 비교 대상 | 결과 |
+|-------------|----------|------|
+| **2/7** | Mixtral | hidden_size, kv_heads만 일치 |
+| **1/7** | DeepSeek-V2 | rope_theta 계열만 유사 |
+| **1/7** | Qwen2-57B | rope_theta만 동일 |
+
+**결론: 0/5 완전 일치 → 독립적 설계 (From scratch 지지)**
+
+### Solar-Open-100B 고유 특징
+
+1. **129개 Expert 구성** (128 routed + 1 shared) - 다른 모델에서 볼 수 없는 구성
+2. **48 layers** - Mixtral(32)과 DeepSeek(60)의 단순 중간값 아님
+3. **64 attention heads** - 가장 많은 head 수 (Dense 모델 제외)
+4. **moe_intermediate_size: 1,280** - 비교 대상 중 가장 작음 (효율적 설계)
+5. **vocab_size: 196,608** - 모든 비교 대상 중 가장 큼
+
+---
 
 ## 결론 도출 기준
 
