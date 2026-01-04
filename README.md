@@ -72,9 +72,24 @@
 
 | 컴포넌트 | 결과 | From scratch 여부 |
 |----------|------|-------------------|
-| **Vision Encoder** | Qwen2.5 ViT 사용 (config에 명시) | ❌ 재사용 |
-| **Text Decoder** | 고유 architecture (rope_theta 50M) | ⚠️ 추가 검증 필요 |
-| **Tokenizer** | vocab_size 128,256 (Llama 3와 256 차이) | ⚠️ 재해석 필요 |
+| **Vision Encoder** | Qwen2.5 ViT 사용 (config에 명시) | ❌ 재사용* |
+| **Text Decoder** | 고유 architecture (rope_theta 50M) | ⚠️ 추가 검증 필요** |
+| **Tokenizer** | vocab_size 128,256 (Llama 3와 256 차이) | ⚠️ 재해석 필요*** |
+
+> *Vision Encoder 재사용 근거:
+> - config.json의 `model_type: "qwen2_5_vl"`이 명시적으로 Qwen2.5 Vision 사용을 나타냄
+> - VLM에서 검증된 Vision Encoder 재사용은 일반적인 관행이나, "from scratch" 주장 시 범위 명시 필요
+
+> **Text Decoder 추가 검증 필요:
+> - `rope_theta: 50,000,000` (Llama 3의 500,000 대비 100배)은 고유 설계를 시사
+> - 그러나 행동 분석(Knowledge Cutoff, Refusal Pattern)이 미수행 상태
+> - 직접 실행 환경 없이 Text Decoder의 독자성을 완전히 검증하기 어려움
+
+> ***Tokenizer 재해석 필요:
+> - vocab_size 128,256은 Llama 3(128,000)와 256 토큰 차이
+> - [Trillion-7B 논문](https://arxiv.org/abs/2412.00628)에 따르면 128,256 vocab 구성: ~100,000 영어 + ~24,552 한국어 + 나머지 다국어
+> - 단순 "Llama 3 + 256 special tokens" 재사용이 아닌 한국어 최적화 확장으로 보이나, 공식 문서화 부재
+> - HyperCLOVA X 기술 보고서(100,000 vocab)와 SEED 버전(128,256 vocab)의 28,256 차이에 대한 공식 설명 없음
 
 **판정: 부분적 재사용 (Vision Encoder는 from scratch 아님)**
 
@@ -92,7 +107,16 @@
 | **Tokenizer** | vocab_size 163,840 (모든 모델과 불일치) | ✅ 강력 지지 |
 | **Architecture** | 61 layers, 193 experts, MHA (고유 구성) | ✅ 강력 지지 |
 | **Weight** | Architecture 불일치로 비교 불가 | ✅ 간접 지지 |
-| **행동** | 미수행 | - |
+| **행동** | 미수행 | ⚠️ 추가 가능* |
+
+> *행동 분석 미수행 사유:
+> - 직접 실행 환경(API 또는 로컬 추론) 없이 행동 분석 불가
+> - Knowledge Cutoff, Refusal Pattern 등 행동 기반 검증은 수행되지 않음
+> - Architecture와 Tokenizer의 고유성이 충분히 강력하여 From scratch 판정에는 영향 없음
+
+> 추가 검토 사항:
+> - 193 experts는 검증 대상 모델 중 가장 많은 수로, 독자적 설계 의도가 명확함
+> - 다만 training logs나 학습 과정에 대한 공개 검증은 확인되지 않음
 
 **판정: From scratch 신뢰 가능**
 
@@ -109,7 +133,17 @@
 | **Tokenizer** | vocab_size 137,216 (모든 모델과 불일치) | ✅ 강력 지지 |
 | **Architecture** | 48 layers, 129 experts, Hybrid Attention (고유 구성) | ✅ 강력 지지 |
 | **Weight** | Architecture 불일치로 비교 불가 | ✅ 간접 지지 |
-| **행동** | 미수행 | - |
+| **행동** | 미수행 | ⚠️ 추가 가능* |
+
+> *행동 분석 미수행 사유:
+> - 직접 실행 환경(API 또는 로컬 추론) 없이 행동 분석 불가
+> - Knowledge Cutoff, Refusal Pattern 등 행동 기반 검증은 수행되지 않음
+> - Architecture와 Tokenizer의 고유성이 충분히 강력하여 From scratch 판정에는 영향 없음
+
+> 추가 검토 사항:
+> - Hybrid Attention (GQA + Sliding Window)은 독자적 구현으로 보임
+> - 고유한 Special Tokens 스타일 (`<|START|>`, `<|END|>`, `<tool_start>`, `<tool_end>`)은 독립 개발 증거
+> - 다만 training logs나 학습 과정에 대한 공개 검증은 확인되지 않음
 
 **판정: From scratch 신뢰 가능**
 
@@ -126,7 +160,18 @@
 | **Tokenizer** | vocab_size 153,600 (모든 모델과 불일치) | ✅ 강력 지지 |
 | **Architecture** | 48 layers, 129 experts, LLLG Attention, 256K context (고유 구성) | ✅ 강력 지지 |
 | **Weight** | Architecture 불일치로 비교 불가 | ✅ 간접 지지 |
-| **행동** | 미수행 | - |
+| **행동** | 미수행 | ⚠️ 추가 가능* |
+
+> *행동 분석 미수행 사유:
+> - 직접 실행 환경(API 또는 로컬 추론) 없이 행동 분석 불가
+> - Knowledge Cutoff, Refusal Pattern 등 행동 기반 검증은 수행되지 않음
+> - Architecture와 Tokenizer의 고유성이 충분히 강력하여 From scratch 판정에는 영향 없음
+
+> 추가 검토 사항:
+> - LLLG Attention (Local-Local-Local-Global 패턴)은 EXAONE 시리즈 고유 기술
+> - vocab_size 153,600은 Qwen2-72B(152,064)와 1,536 차이로 유사하나, Special Tokens 스타일 (`[BOS]`, `<|endofturn|>`)이 완전히 다름
+> - 256K context length는 검증 대상 모델 중 최장으로, 별도 engineering 필요
+> - 다만 training logs나 학습 과정에 대한 공개 검증은 확인되지 않음
 
 **판정: From scratch 신뢰 가능**
 
