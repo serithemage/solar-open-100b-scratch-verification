@@ -3,7 +3,7 @@
 ## 프로젝트 목적
 
 이 프로젝트는 Upstage의 Solar-Open-100B 모델이 실제로 "from scratch"로 학습되었는지 검증합니다.
-검증 과정의 모든 Q&A는 튜토리얼 형태로 README.md에 기록됩니다.
+검증 과정의 모든 Q&A는 튜토리얼 형태로 `docs/00-tutorial.md`에 기록됩니다.
 
 ## 질문 처리 워크플로우
 
@@ -14,7 +14,7 @@
     │
     ├─ 질문인가? (?, ~인가요, ~뭔가요, 설명해줘 등)
     │   │
-    │   └─ YES → Perplexity MCP로 조사 → README 튜토리얼에 Q&A 추가
+    │   └─ YES → Perplexity MCP로 조사 → docs/00-tutorial.md에 Q&A 추가
     │
     └─ 명령인가? (실행해, 분석해, 만들어 등)
         │
@@ -27,7 +27,7 @@
 
 1. **영문으로 쿼리 작성** (사용자의 전역 CLAUDE.md 지침)
 2. **구체적이고 기술적인 질문으로 변환**
-3. **조사 결과를 한국어로 정리하여 README에 추가**
+3. **조사 결과를 한국어로 정리하여 튜토리얼에 추가**
 
 예시:
 - 사용자: "Tokenizer 분석에 대해서 자세하게 설명해줘"
@@ -35,7 +35,7 @@
 
 ### 튜토리얼에 기록해야 하는 Q&A 유형
 
-다음 주제에 대한 질문과 답변은 반드시 README.md 튜토리얼에 추가:
+다음 주제에 대한 질문과 답변은 반드시 `docs/00-tutorial.md`에 추가:
 
 1. **LLM 학습 검증 방법론** - from scratch vs fine-tuning 판별법
 2. **Tokenizer 분석** - vocabulary 비교, BPE merge 분석
@@ -48,14 +48,14 @@
 
 1. **Perplexity MCP로 조사** (영문 쿼리)
 2. **조사 결과를 구조화된 한국어 답변으로 정리**
-3. README.md의 `<!-- TUTORIAL_MARKER -->` 위에 새 Q&A 추가
+3. `docs/00-tutorial.md`의 `<!-- TUTORIAL_MARKER -->` 위에 새 Q&A 추가
 4. Q&A 번호는 기존 Q&A 개수 + 1
 5. 형식:
 
 ```markdown
 ---
 
-### Q{N}: {질문 요약}
+## Q{N}: {질문 요약}
 
 **질문 시각**: {YYYY-MM-DD}
 
@@ -72,7 +72,12 @@
 
 ## 주요 파일
 
-- `README.md` - 프로젝트 문서 및 튜토리얼
+- `README.md` - 프로젝트 메인 문서
+- `docs/00-tutorial.md` - Q&A 튜토리얼 (자동 업데이트 대상)
+- `docs/01-tokenizer-analysis.md` - Tokenizer 분석 상세
+- `docs/02-weight-analysis.md` - Weight 분석 상세
+- `docs/03-architecture-analysis.md` - Architecture 분석 상세
+- `docs/04-behavior-analysis.md` - 행동 분석 상세
 - `.claude/skills/update-tutorial.md` - 튜토리얼 업데이트 skill
 - `.claude/settings.json` - hooks 설정
 
