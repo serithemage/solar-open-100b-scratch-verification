@@ -30,6 +30,17 @@
 - Trillion-7B 논문 참조로 한국어 최적화 설계 가능성 확인
 - Q10 추가: vocab_size 일치의 중요성 설명
 
+### 방법론 한계 및 학술 연구 반영
+- 검증 방법론 비판 조사: vocab_size 비교 vs 실제 토큰 중복률/weight 비교
+- [arXiv:2502.00706v1](https://arxiv.org/abs/2502.00706) Black-box Output Similarity Testing 방법론 참조 추가
+- Yi-Llama 논쟁 사례 연구 추가 (아키텍처 유사성 ≠ 파생 증거)
+- README.md에 "방법론의 한계와 학술 연구 결과" 섹션 추가
+- 튜토리얼 Q11: 방법론 비판에 대한 학술적 근거 추가
+
+### 프로젝트 자동화
+- `.claude/skills/update-changelog.md` skill 생성
+- 변경이력 자동 업데이트 기능 추가
+
 ---
 
 ## 2026-01-04

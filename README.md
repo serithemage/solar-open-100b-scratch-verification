@@ -304,6 +304,48 @@ LLM이 실제로 from scratch로 학습되었는지 확인하는 기술적 방�
 
 ---
 
+### 방법론의 한계와 학술 연구 결과
+
+이 프로젝트의 검증 방법론에 대한 비판과 학술 연구 기반 재평가입니다.
+
+#### 학술적으로 가장 신뢰할 수 있는 방법
+
+**[Model Provenance Testing for Large Language Models](https://arxiv.org/html/2502.00706v1)** (arXiv:2502.00706v1)에 따르면:
+
+| 방법 | 정확도 | 비고 |
+|------|--------|------|
+| **Black-box Output Similarity** | 90-95% precision | 동일 프롬프트 출력 토큰 일치율 통계 분석 |
+| Config 비교 | 불충분 | Fine-tuning은 architecture 보존 |
+| Weight 비교 | 유효 | White-box 접근 필요 |
+
+#### 현재 방법론의 한계
+
+| 방법 | 한계점 |
+|------|--------|
+| **config.json 비교** | Fine-tuning은 architecture를 보존하므로, 동일 dimension 모델이 파생작일 수 있음 |
+| **vocab_size 비교** | Fine-tuning 시 tokenizer 그대로 사용하므로, vocab_size 일치가 파생 증거가 될 수 있음 |
+
+#### 현재 프로젝트 판정의 유효성
+
+**로직**: "vocab_size가 **불일치**하면 from scratch 지지"
+
+| 상황 | 해석 | 유효성 |
+|------|------|--------|
+| vocab_size **다름** | Tokenizer 재학습 필요 → from scratch 강력 증거 | ✅ 유효 |
+| vocab_size **같음** | 추가 검증 필요 (토큰 중복률, merge rules) | ⚠️ 추가 분석 필요 |
+
+**결론**:
+- **Solar, A.X-K1, VAETKI, K-EXAONE**: vocab_size 명확히 다름 → **판정 유효**
+- **HyperCLOVAX**: vocab_size 유사 → **실제 토큰 중복률 분석 권장**
+
+#### 관련 사례: Yi-Llama 논란
+
+01.AI Yi-34B 모델 파생 의혹에 대한 [EleutherAI 분석](https://blog.eleuther.ai/nyt-yi-34b-response/): Architecture 동일성만으로는 파생 증거 불충분, Yi는 독립 학습으로 결론.
+
+> 상세 분석: [튜토리얼 Q11](docs/00-tutorial.md#q11-이-프로젝트의-검증-방법론에-대한-비판과-학술-연구-결과는) 참조
+
+---
+
 ## 주요 발견 사항
 
 ### LayerNorm 유사도 의혹 검증 (Solar-Open-100B)

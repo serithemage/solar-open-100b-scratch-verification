@@ -1033,4 +1033,83 @@ vocab_size가 **비슷하지만 다르면**:
 
 ---
 
+## Q11: 이 프로젝트의 검증 방법론에 대한 비판과 학술 연구 결과는?
+
+**질문 시각**: 2026-01-05
+
+**답변**:
+
+"vocab_size나 config dimension 비교만으로는 불충분하고, 실제 토큰 중복률이나 weight 값 비교가 더 중요하다"는 의견이 제기되었습니다. 이에 대해 학술 연구를 조사한 결과입니다.
+
+### 1. 학술적으로 가장 신뢰할 수 있는 검증 방법
+
+**[Model Provenance Testing for Large Language Models](https://arxiv.org/html/2502.00706v1)** (arXiv:2502.00706v1)에 따르면:
+
+| 방법 | 설명 | 정확도 |
+|------|------|--------|
+| **Black-box Output Similarity** | 동일 프롬프트에 대한 출력 토큰 일치율 통계 분석 | 90-95% precision, 80-90% recall |
+| Config 비교 | hidden_size, num_layers 등 | 불충분 (fine-tuning은 architecture 보존) |
+| Weight 비교 | Cosine similarity 등 | 유효하나 white-box 접근 필요 |
+
+**핵심 발견**: 600+ 모델에서 검증된 결과, **출력 행동 기반 통계 분석**이 가장 신뢰할 수 있는 방법.
+
+### 2. Config/Dimension 비교의 한계
+
+| 방법 | 한계점 |
+|------|--------|
+| **config.json 비교** | Fine-tuning은 architecture를 보존하므로, 동일한 dimension을 가진 모델이 파생작일 수 있음 |
+| **vocab_size 비교** | Fine-tuning 시 tokenizer를 그대로 사용하므로, vocab_size 일치가 파생 증거가 될 수 있음 |
+
+### 3. 현재 프로젝트 방법론의 유효성 재평가
+
+**현재 프로젝트 로직**: "vocab_size가 **불일치**하면 from scratch 지지"
+
+| 상황 | 해석 | 유효성 |
+|------|------|--------|
+| vocab_size가 **다름** | Tokenizer 재학습 필요 → from scratch 강력 증거 | ✅ 유효 |
+| vocab_size가 **같음** | 추가 검증 필요 (token 중복률, merge rules) | ⚠️ 추가 분석 필요 |
+
+**결론**: vocab_size **불일치**를 기반으로 한 판정 (Solar, A.X-K1, VAETKI, K-EXAONE)은 **여전히 유효**. HyperCLOVAX처럼 vocab_size가 유사한 경우에는 **실제 토큰 중복률 분석**이 추가로 필요.
+
+### 4. Yi-Llama 논란 사례
+
+01.AI의 Yi-34B 모델이 Meta Llama에서 파생되었다는 의혹 사례:
+
+| 증거 유형 | 발견 내용 | 결론 |
+|-----------|-----------|------|
+| Architecture | Llama와 동일한 구조 | 표준 관행, 저작권 대상 아님 |
+| Tensor Names | Llama 형식 그대로 사용 | 01.AI "oversight" 인정 |
+| Weights | 복사 증거 없음 | 독립 학습 주장 유지 |
+
+**[EleutherAI 분석](https://blog.eleuther.ai/nyt-yi-34b-response/)**: Yi는 독립적으로 학습되었으며, Llama 아키텍처 채택은 업계 표준 관행.
+
+관련 링크:
+- [SCMP 기사](https://www.scmp.com/tech/tech-trends/article/3241680/chinese-tech-unicorn-01ai-admits-oversight-changing-name-ai-model-built-meta-platforms-llama-system)
+- [HuggingFace 토론](https://huggingface.co/01-ai/Yi-34B/discussions/11)
+- [Hacker News](https://news.ycombinator.com/item?id=39659781)
+
+### 5. 방법론 개선 방향
+
+| 현재 방법 | 개선 방향 |
+|-----------|-----------|
+| vocab_size 비교 | + **실제 토큰 중복률** 계산 |
+| config dimension 비교 | + **출력 행동 유사도** 분석 |
+| Architecture 비교 | 유효 (architecture 다르면 weight 재사용 불가) |
+
+### 6. 결론
+
+비판의 타당성:
+
+| 주장 | 평가 |
+|------|------|
+| "Config dimension 비교만으로 불충분" | ✅ 부분적으로 맞음 (같은 architecture에서 fine-tuning 가능) |
+| "실제 토큰 중복률이 더 중요" | ✅ 맞음 (vocab_size가 유사할 때 특히) |
+| "Weight 비교가 더 중요" | ⚠️ 부분적으로 맞음 (학술 연구에서는 output behavior가 더 신뢰성 있음) |
+
+**현재 프로젝트 판정의 유효성**:
+- vocab_size가 **명확히 다른** 모델들 (Solar, A.X-K1, VAETKI, K-EXAONE): **판정 유효**
+- vocab_size가 **유사한** HyperCLOVAX: **추가 검증 권장** (실제 토큰 중복률)
+
+---
+
 <!-- TUTORIAL_MARKER: 새로운 Q&A는 이 마커 위에 자동 추가됩니다 -->
