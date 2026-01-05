@@ -92,7 +92,7 @@
 |----------|------|-------------------|
 | **Vision Encoder** | Qwen2.5 ViT 사용 (config에 명시) | ❌ 재사용* |
 | **Text Decoder** | 고유 architecture (rope_theta 50M) | ⚠️ 추가 검증 필요** |
-| **Tokenizer** | vocab_size 128,256 (Llama 3와 256 차이) | ⚠️ 재해석 필요*** |
+| **Tokenizer** | Llama 3 재사용 아님, Qwen 계열 유사성 발견 | ⚠️ 전문가 검증 필요*** |
 
 > *Vision Encoder 재사용:
 > - [config.json](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B/blob/main/config.json)의 `vision_config.model_type: "qwen2_5_vl"`이 명시적으로 Qwen2.5 Vision 사용을 나타냄
@@ -105,13 +105,27 @@
 > - 그러나 행동 분석(Knowledge Cutoff, Refusal Pattern)이 미수행 상태
 > - 직접 실행 환경 없이 Text Decoder의 독자성을 완전히 검증하기 어려움
 
-> ***Tokenizer 재해석 필요:
-> - vocab_size 128,256은 Llama 3(128,000)와 256 토큰 차이
-> - [Trillion-7B 논문](https://arxiv.org/abs/2412.00628)에 따르면 128,256 vocab 구성: ~100,000 영어 + ~24,552 한국어 + 나머지 다국어
-> - 단순 "Llama 3 + 256 special tokens" 재사용이 아닌 한국어 최적화 확장으로 보이나, 공식 문서화 부재
-> - HyperCLOVA X 기술 보고서(100,000 vocab)와 SEED 버전(128,256 vocab)의 28,256 차이에 대한 공식 설명 없음
+> ***Tokenizer 심층 분석 결과 (2026-01-05):
+>
+> HyperCLOVAX-SEED tokenizer에 대해 Llama-3, Qwen2.5-VL과의 상세 비교 분석을 수행했습니다. 실제 tokenizer.json 파일을 기준으로 토큰 중복률과 BPE merge rules 순서를 분석한 결과, 예상과 다른 패턴이 발견되었습니다.
+>
+> **분석 대상 vocab_size:**
+> - HyperCLOVAX-SEED (tokenizer.json): 110,524
+> - Llama-3: 128,256
+> - Qwen2.5-VL: 151,665
+>
+> **Llama-3와의 비교:**
+> HyperCLOVAX-SEED와 Llama-3 간 토큰 중복률은 92.58%로 높게 나타났으나, BPE merge rules의 순서 일치율은 0.01%에 불과했습니다. 이는 두 tokenizer가 유사한 토큰 집합을 공유하지만, BPE 학습 과정에서 완전히 다른 순서로 토큰을 병합했음을 의미합니다. 따라서 **Llama-3 tokenizer를 직접 재사용한 것은 아님**으로 판단됩니다.
+>
+> **Qwen2.5-VL과의 비교:**
+> 반면 Qwen2.5-VL과의 비교에서는 토큰 중복률 91.23%와 함께 BPE merge rules 순서 일치율이 1.54%로 나타났습니다. 이는 Llama-3 대비 150배 높은 수치입니다. 특히 **처음 20개의 merge rules가 완전히 일치**하는 것으로 확인되어, Qwen 계열 tokenizer와 유사한 BPE 학습 기반을 공유했을 가능성이 있습니다.
+>
+> **해석의 한계:**
+> 이 분석 결과만으로 HyperCLOVAX-SEED가 Qwen tokenizer를 기반으로 했다고 단정할 수는 없습니다. BPE 학습 시 동일한 코퍼스 구성이나 학습 설정을 사용하면 유사한 merge 순서가 나타날 수 있기 때문입니다. 또한 분석에 사용된 모델(HyperCLOVAX-SEED-Vision-Instruct-3B)이 Think-32B와 동일한 tokenizer를 사용하는지도 추가 확인이 필요합니다.
+>
+> **결론:** Llama-3 직접 재사용은 아니나, Qwen 계열과의 관계에 대해서는 **전문가의 추가 검증이 필요**합니다. 상세 분석 결과는 [이슈 #5](https://github.com/serithemage/korea-ai-foundation-model-verification/issues/5)에서 확인할 수 있습니다.
 
-**판정: Vision Encoder 재사용, Text Decoder는 추가 검증 필요**
+**판정: Vision Encoder 재사용, Text Decoder 및 Tokenizer는 전문가 추가 검증 필요**
 
 > 참고: Vision Encoder 재사용이 정부 가이드라인 위반인지는 불명확함. 공개된 프로젝트 요건에서 VLM 컴포넌트별 "from scratch" 요건을 명시하지 않으며, NAVER는 이를 투명하게 공개함.
 
@@ -119,6 +133,7 @@
 - [Tokenizer 분석](docs/01-tokenizer-analysis.md)
 - [Architecture 분석](docs/03-architecture-analysis.md)
 - [행동 분석](docs/04-behavior-analysis.md)
+- [이슈 #5: Tokenizer 추가 검증](https://github.com/serithemage/korea-ai-foundation-model-verification/issues/5)
 
 ---
 
