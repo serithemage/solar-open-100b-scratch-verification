@@ -77,8 +77,8 @@
 | **Tokenizer** | vocab_size 128,256 (Llama 3와 256 차이) | ⚠️ 재해석 필요*** |
 
 > *Vision Encoder 재사용:
-> - config.json의 `model_type: "qwen2_5_vl"`이 명시적으로 Qwen2.5 Vision 사용을 나타냄
-> - NAVER는 HuggingFace 및 GitHub에 이를 명시적으로 공개함 (투명성 확보)
+> - [config.json](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B/blob/main/config.json)의 `vision_config.model_type: "qwen2_5_vl"`이 명시적으로 Qwen2.5 Vision 사용을 나타냄
+> - NAVER는 HuggingFace에 이를 명시적으로 공개함 (투명성 확보)
 > - **정부 가이드라인 참고**: 국가 AI 파운데이션 모델 프로젝트는 "from scratch" 요건을 VLM의 모든 컴포넌트에 적용하는지 명시하지 않음. 프로젝트는 방법론보다 벤치마크 성능 중심으로 평가하며, 팀별 개발 전략의 자율성을 허용함 ([MSIT 발표](https://www.msit.go.kr/eng/bbs/view.do?sCode=eng&nttSeqNo=1131&bbsSeqNo=42) 참조)
 > - VLM에서 검증된 Vision Encoder 재사용은 업계 일반적 관행 (LLaVA, Qwen-VL 등 대부분의 VLM이 CLIP/SigLIP 재사용)
 
