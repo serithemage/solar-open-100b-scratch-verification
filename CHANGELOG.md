@@ -41,6 +41,19 @@
 - `.claude/skills/update-changelog.md` skill 생성
 - 변경이력 자동 업데이트 기능 추가
 
+### HyperCLOVAX-SEED Tokenizer 심층 분석 (이슈 #5)
+- **실제 vocab_size 정정**: config.json (128,256) vs tokenizer.json (110,524)
+- HyperCLOVAX-SEED vs Llama-3 비교:
+  - 토큰 중복률: 92.58%
+  - **BPE merge rules 순서 일치율: 0.01%** (완전 불일치)
+  - 결론: Llama 3 직접 재사용 ❌
+- HyperCLOVAX-SEED vs Qwen2.5-VL 비교:
+  - 토큰 중복률: 91.23%
+  - **BPE merge rules 순서 일치율: 1.54%** (Llama보다 150배 높음)
+  - **처음 20개 merge rules 완전 일치**
+  - 결론: Qwen 계열과 유사한 BPE 학습 패턴 ⚠️
+- `docs/01-tokenizer-analysis.md` HyperCLOVAX 섹션 업데이트
+
 ---
 
 ## 2026-01-04
