@@ -54,6 +54,16 @@
   - 결론: Qwen 계열과 유사한 BPE 학습 패턴 ⚠️
 - `docs/01-tokenizer-analysis.md` HyperCLOVAX 섹션 업데이트
 
+### 네이버 오픈소스 차용 공식 인정 반영
+- [뉴스1 단독 보도](https://www.news1.kr/it-science/general-it/6029076) 내용 반영
+- 네이버 인정 내용:
+  - **Vision Encoder**: Qwen 2.5 파인튜닝 사용 (코사인 유사도 99.51%)
+  - **Audio Encoder**: 원본 그대로 사용
+  - **Text Decoder**: "100% 자체 기술" 주장
+  - **Tokenizer**: 공식 언급 없음
+- 전문가 의견 (장두성 서강대 교수): "업계 관행이나 '프롬 스크래치'라고 하지는 않는다"
+- 네이버 인정 내용이 Tokenizer 분석 결과의 해명은 아님 (별도 해명 필요)
+
 ---
 
 ## 2026-01-04

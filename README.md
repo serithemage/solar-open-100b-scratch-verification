@@ -90,17 +90,21 @@
 
 | 컴포넌트 | 결과 | From scratch 여부 |
 |----------|------|-------------------|
-| **Vision Encoder** | Qwen2.5 ViT 사용 (config에 명시) | ❌ 재사용* |
-| **Text Decoder** | 고유 architecture (rope_theta 50M) | ⚠️ 추가 검증 필요** |
+| **Vision Encoder** | Qwen2.5 ViT 파인튜닝 사용 (네이버 공식 인정) | ❌ 재사용* |
+| **Audio Encoder** | Qwen2.5 그대로 사용 (네이버 공식 인정) | ❌ 재사용* |
+| **Text Decoder** | "100% 자체 기술" 주장 (네이버 입장) | ⚠️ 추가 검증 필요** |
 | **Tokenizer** | Llama 3 재사용 아님, Qwen 계열 유사성 발견 | ⚠️ 전문가 검증 필요*** |
 
-> *Vision Encoder 재사용:
-> - [config.json](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B/blob/main/config.json)의 `vision_config.model_type: "qwen2_5_vl"`이 명시적으로 Qwen2.5 Vision 사용을 나타냄
-> - NAVER는 HuggingFace에 이를 명시적으로 공개함 (투명성 확보). 추론 도구는 [GitHub](https://github.com/NAVER-Cloud-HyperCLOVA-X)에서 제공
-> - **정부 가이드라인 참고**: 국가 AI 파운데이션 모델 프로젝트는 "from scratch" 요건을 VLM의 모든 컴포넌트에 적용하는지 명시하지 않음. 프로젝트는 방법론보다 벤치마크 성능 중심으로 평가하며, 팀별 개발 전략의 자율성을 허용함 ([MSIT 발표](https://www.msit.go.kr/eng/bbs/view.do?sCode=eng&nttSeqNo=1131&bbsSeqNo=42) 참조)
-> - VLM에서 검증된 Vision Encoder 재사용은 업계 일반적 관행 (LLaVA, Qwen-VL 등 대부분의 VLM이 CLIP/SigLIP 재사용)
+> *Vision/Audio Encoder 재사용 (2026-01-05 네이버 공식 인정):
+> - [뉴스1 단독 보도](https://www.news1.kr/it-science/general-it/6029076)에 따르면, 네이버클라우드는 Qwen 2.5 모델의 **Vision Encoder를 파인튜닝하여 사용**하고, **Audio Encoder는 원본 그대로 사용**한 사실을 인정
+> - Vision Encoder: 코사인 유사도 99.51%, 피어슨 상관계수 98.98% 이상
+> - 네이버 입장: "글로벌 최신 트렌드와의 호환성, 전체 시스템 최적화를 위해 전략적으로 채택"
+> - [config.json](https://huggingface.co/naver-hyperclovax/HyperCLOVAX-SEED-Think-32B/blob/main/config.json)의 `vision_config.model_type: "qwen2_5_vl"`로 명시적 공개
+> - **전문가 의견** (장두성 서강대 교수): "비전·이미지 인코더 재사용은 업계 관행이나, 일반적인 기준에서 이를 '프롬 스크래치'라고 하지는 않는다"
+> - **정부 가이드라인 참고**: 국가 AI 파운데이션 모델 프로젝트는 "from scratch" 요건을 VLM의 모든 컴포넌트에 적용하는지 명시하지 않음 ([MSIT 발표](https://www.msit.go.kr/eng/bbs/view.do?sCode=eng&nttSeqNo=1131&bbsSeqNo=42) 참조)
 
 > **Text Decoder 추가 검증 필요:
+> - 네이버 입장: "파운데이션 모델의 핵심 '두뇌'는 100% 자체 기술로 개발"
 > - `rope_theta: 50,000,000` (Llama 3의 500,000 대비 100배)은 고유 설계를 시사
 > - 그러나 행동 분석(Knowledge Cutoff, Refusal Pattern)이 미수행 상태
 > - 직접 실행 환경 없이 Text Decoder의 독자성을 완전히 검증하기 어려움
@@ -124,10 +128,12 @@
 > 이 분석 결과만으로 HyperCLOVAX-SEED가 Qwen tokenizer를 기반으로 했다고 단정할 수는 없습니다. BPE 학습 시 동일한 코퍼스 구성이나 학습 설정을 사용하면 유사한 merge 순서가 나타날 수 있기 때문입니다. 또한 분석에 사용된 모델(HyperCLOVAX-SEED-Vision-Instruct-3B)이 Think-32B와 동일한 tokenizer를 사용하는지도 추가 확인이 필요합니다.
 >
 > **결론:** Llama-3 직접 재사용은 아니나, Qwen 계열과의 관계에 대해서는 **전문가의 추가 검증이 필요**합니다. 상세 분석 결과는 [이슈 #5](https://github.com/serithemage/korea-ai-foundation-model-verification/issues/5)에서 확인할 수 있습니다.
+>
+> **참고:** 네이버가 인정한 오픈소스 차용은 Vision/Audio Encoder에 한정되며, Tokenizer에 대해서는 공식 언급이 없습니다. 따라서 Tokenizer의 Qwen 계열 유사성에 대해서는 별도의 해명이 필요합니다.
 
-**판정: Vision Encoder 재사용, Text Decoder 및 Tokenizer는 전문가 추가 검증 필요**
+**판정: Vision/Audio Encoder 재사용 (네이버 공식 인정), Text Decoder 및 Tokenizer는 전문가 추가 검증 필요**
 
-> 참고: Vision Encoder 재사용이 정부 가이드라인 위반인지는 불명확함. 공개된 프로젝트 요건에서 VLM 컴포넌트별 "from scratch" 요건을 명시하지 않으며, NAVER는 이를 투명하게 공개함.
+> 참고: Vision/Audio Encoder 재사용이 정부 가이드라인 위반인지는 불명확함. 공개된 프로젝트 요건에서 VLM 컴포넌트별 "from scratch" 요건을 명시하지 않으며, 네이버는 이를 투명하게 공개하고 "전략적 채택"으로 설명함.
 
 상세 분석:
 - [Tokenizer 분석](docs/01-tokenizer-analysis.md)
