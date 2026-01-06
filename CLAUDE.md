@@ -20,8 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 커맨드 | 설명 |
 |--------|------|
-| `/commit-push` | 변경사항 분석 후 커밋 & 푸시 |
-| `/save` 또는 `/save {메시지}` | 빠른 커밋 & 푸시 |
+| `/save` 또는 `/save {메시지}` | 변경사항 분석 후 커밋 & 푸시 (메시지 없으면 자동 생성) |
 | `/update-tutorial` | Q&A 튜토리얼 수동 업데이트 |
 
 ## 질문 처리 워크플로우
