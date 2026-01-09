@@ -442,8 +442,7 @@ solar-open-100b-scratch-verification/
 └── .claude/
     ├── settings.json             # Hooks 설정
     ├── commands/
-    │   ├── commit-push.md        # /commit-push 커맨드
-    │   └── save.md               # /save 커맨드 (빠른 저장)
+    │   └── save.md               # /save 커맨드
     └── skills/
         └── update-tutorial.md    # /update-tutorial skill 정의
 ```
@@ -452,8 +451,7 @@ solar-open-100b-scratch-verification/
 
 | 커맨드 | 설명 | 사용법 |
 |--------|------|--------|
-| `/commit-push` | 변경사항 분석 후 커밋 & 푸시 | `/commit-push` |
-| `/save` | 빠른 커밋 & 푸시 | `/save` 또는 `/save {메시지}` |
+| `/save` | 변경사항 분석 후 커밋 & 푸시 | `/save` 또는 `/save {메시지}` |
 | `/update-tutorial` | Q&A 튜토리얼 수동 업데이트 | `/update-tutorial` |
 
 ---

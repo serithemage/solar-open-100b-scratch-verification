@@ -19,6 +19,7 @@ Tokenizer 기반 검증 방법과 실제 분석 결과를 다룹니다.
 - **Q5**: Solar-Open-100B의 Tokenizer 분석 결과는 어떠한가요?
 - **Q6**: Fine-tuning 의심 증거들에 대한 반론은 무엇인가요?
 - **Q10**: vocab_size 일치가 왜 중요한가요?
+- **Q11**: 토큰 중복률 분석과 BPE Merge Rules 분석이 무엇인가요?
 
 ### 3. Weight 및 Architecture 분석 ([03-weight-architecture-분석.md](03-weight-architecture-분석.md))
 
@@ -40,7 +41,7 @@ Weight 비교와 architecture 분석 방법을 다룹니다.
 
 검증 방법론에 대한 비판적 검토와 학술 연구 결과를 다룹니다.
 
-- **Q11**: 이 프로젝트의 검증 방법론에 대한 비판과 학술 연구 결과는?
+- **Q13**: 이 프로젝트의 검증 방법론에 대한 비판과 학술 연구 결과는?
 
 ---
 
